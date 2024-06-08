@@ -60,9 +60,10 @@ def test_no_holes(all_violation_codes):
             previous_code = code
 
 def print_code_coverage():
-    for branch, count in coverage_data.items():
-        print(f"{branch}: {count}")
+    print(f"'test_all_violations_correct_numbers' function has executed branch_1: {coverage_data['branch_1']} times")
+    print(f"'test_violations_start_zero' function has executed branch_2: {coverage_data['branch_2']} times")
 
 atexit.register(print_code_coverage)
+
 
 

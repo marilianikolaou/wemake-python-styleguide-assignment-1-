@@ -2,6 +2,7 @@ from collections import Counter
 import atexit
 
 coverage_data = {
+    "branch_1": 0,
     "branch_2": 0,
 }
 
@@ -31,6 +32,8 @@ def test_all_violations_correct_numbers(all_module_violations):
     for index, module in enumerate(all_module_violations.keys()):
         code_number = index * 100
         for violation_class in all_module_violations[module]:
+            if code_number <= violation_class.code <= code_number + 100 - 1:  # Branch 1
+                coverage_data["branch_1"] += 1
             assert (
                 code_number <= violation_class.code <= code_number + 100 - 1
             ), violation_class.__qualname__
@@ -57,9 +60,11 @@ def test_no_holes(all_violation_codes):
             previous_code = code
 
 def print_code_coverage():
+    print(f"'test_all_violations_correct_numbers' function has executed branch_1: {coverage_data['branch_1']} times")
     print(f"'test_violations_start_zero' function has executed branch_2: {coverage_data['branch_2']} times")
 
 atexit.register(print_code_coverage)
+
 
 
 

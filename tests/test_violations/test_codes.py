@@ -4,6 +4,7 @@ import atexit
 coverage_data = {
     "branch_1": 0,
     "branch_2": 0,
+    "branch_3": 0,
 }
 
 def test_all_unique_violation_codes(all_violations):
@@ -46,6 +47,8 @@ def test_violations_start_zero(all_module_violations):
             violation_class.code
             for violation_class in all_module_violations[module]
         )
+        if starting_code == index * 100:  # Branch 3
+            coverage_data["branch_3"] += 1
         assert starting_code == index * 100
 
 def test_no_holes(all_violation_codes):
@@ -61,6 +64,7 @@ def test_no_holes(all_violation_codes):
 def print_code_coverage():
     print(f"'test_all_violations_correct_numbers' function has executed branch_1: {coverage_data['branch_1']} times")
     print(f"'test_all_violations_correct_numbers' function has executed branch_2: {coverage_data['branch_2']} times")
+    print(f"'test_violations_start_zero' function has executed branch_3: {coverage_data['branch_3']} times")
 atexit.register(print_code_coverage)
 
 

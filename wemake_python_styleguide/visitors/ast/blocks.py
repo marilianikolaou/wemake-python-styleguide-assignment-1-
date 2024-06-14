@@ -24,6 +24,7 @@ from wemake_python_styleguide.violations.best_practices import (
 )
 from wemake_python_styleguide.visitors import base, decorators
 
+
 #: That's how we represent contexts for control variables.
 _BlockVariables: TypeAlias = DefaultDict[
     ast.AST,
@@ -62,6 +63,8 @@ _NamedNode: TypeAlias = Union[
     'visit_NamedExpr',
     'visit_arg',
 ))
+
+
 class BlockVariableVisitor(base.BaseNodeVisitor):
     """
     This visitor is used to detect variables that are reused for blocks.
@@ -126,19 +129,32 @@ class BlockVariableVisitor(base.BaseNodeVisitor):
         self.generic_visit(node)
 
     # Locals:
-
     def visit_locals(self, node: Union[AnyAssignWithWalrus, ast.arg]) -> None:
         """Visits local variable definitions and function arguments."""
+
+        coverage_data = {
+            "branch_1" : False,
+            "branch_2" : False,
+        }
+
         if isinstance(node, ast.arg):
+            coverage_data["branch_1"] = True
             names = {node.arg}
         else:
+            coverage_data["branch_2"] = True
             names = set(flat_variable_names([node]))
+
 
         self._scope(node, names, is_local=True)
         self._outer_scope(node, names)
         self.generic_visit(node)
 
-    # Utils:
+        total_branches = len(coverage_data)
+        hit_branches = sum(coverage_data.values())
+        coverage_percentage = (hit_branches / total_branches) * 100
+        print(f"Branch coverage in visit_locals: {coverage_percentage:.2f}%")
+        for branch, hit in coverage_data.items():
+            print(f"'{branch}' was {'hit' if hit else 'not hit'}")
 
     def _scope(
         self,
@@ -150,14 +166,19 @@ class BlockVariableVisitor(base.BaseNodeVisitor):
         scope = defs.BlockScope(node)
         shadow = scope.shadowing(names, is_local=is_local)
 
-        ignored_scope = any(
-            predicate(node, names)
-            for predicate in self._scope_predicates
-        )
-        ignored_name = any(
-            predicate(node)
-            for predicate in self._naming_predicates
-        )
+        ignored_scope = False
+        for predicate in self._scope_predicates:
+            if predicate(node, names):
+                ignored_scope = True
+                break
+
+
+        ignored_name = False
+        for predicate in self._naming_predicates:
+            if predicate(node):
+                ignored_name = True
+                break
+
 
         if shadow and not ignored_scope:
             self.add_violation(
@@ -166,6 +187,7 @@ class BlockVariableVisitor(base.BaseNodeVisitor):
 
         if not ignored_name:
             scope.add_to_scope(names, is_local=is_local)
+
 
     def _outer_scope(self, node: ast.AST, names: Set[str]) -> None:
         scope = defs.OuterScope(node)
@@ -177,7 +199,6 @@ class BlockVariableVisitor(base.BaseNodeVisitor):
             )
 
         scope.add_to_scope(names)
-
 
 @final
 @decorators.alias('visit_any_for', (

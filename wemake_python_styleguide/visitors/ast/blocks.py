@@ -25,6 +25,7 @@ from wemake_python_styleguide.violations.best_practices import (
 from wemake_python_styleguide.visitors import base, decorators
 
 
+
 #: That's how we represent contexts for control variables.
 _BlockVariables: TypeAlias = DefaultDict[
     ast.AST,
@@ -165,29 +166,49 @@ class BlockVariableVisitor(base.BaseNodeVisitor):
     ) -> None:
         scope = defs.BlockScope(node)
         shadow = scope.shadowing(names, is_local=is_local)
+        coverage_data = {
+            "branch_1" : False,
+            "branch_2" : False,
+            "branch_3" : False,
+            "branch_4" : False,
+            "branch_5" : False,
+            "branch_6" : False
+        }
 
         ignored_scope = False
         for predicate in self._scope_predicates:
+            coverage_data["branch_1"] = True
             if predicate(node, names):
+                coverage_data["branch_2"] = True
                 ignored_scope = True
                 break
 
 
         ignored_name = False
         for predicate in self._naming_predicates:
+            coverage_data["branch_3"] = True
             if predicate(node):
+                coverage_data["branch_4"] = True
                 ignored_name = True
                 break
 
 
         if shadow and not ignored_scope:
+            coverage_data["branch_5"] = True
             self.add_violation(
                 BlockAndLocalOverlapViolation(node, text=', '.join(shadow)),
             )
 
         if not ignored_name:
+            coverage_data["branch_6"] = True
             scope.add_to_scope(names, is_local=is_local)
 
+        total_branches = len(coverage_data)
+        hit_branches = sum(coverage_data.values())
+        coverage_percentage = (hit_branches / total_branches) * 100
+        print(f"Branch coverage in _scope: {coverage_percentage:.2f}%")
+        for branch, hit in coverage_data.items():
+            print(f"'{branch}' was {'hit' if hit else 'not hit'}")
 
     def _outer_scope(self, node: ast.AST, names: Set[str]) -> None:
         scope = defs.OuterScope(node)

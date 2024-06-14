@@ -142,9 +142,26 @@ class ElifVisitor(BaseNodeVisitor):
         self.generic_visit(node)
 
     def _get_root_if_node(self, node: ast.If) -> ast.If:
+        branch_coverage = [("function1_branch1", False),("function1_branch2", False)]
         for root, children in self._if_children.items():
+            branch_coverage[0] = ("function1_branch1", True)
             if node in children:
+                branch_coverage[1] = ("function1_branch2", True)
+                covered_branches = sum(hit for _, hit in branch_coverage)
+                coverage_percentage = (covered_branches /2) * 100
+                print()
+                for i,(branch, hit) in enumerate(branch_coverage):
+                    print(f"{branch} was {'hit' if hit else 'not hit'}")
+                    i+=1
+                print(f"Branch Coverage: {coverage_percentage:}%")
                 return root
+            covered_branches = sum(hit for _, hit in branch_coverage)
+            coverage_percentage = (covered_branches /2) * 100
+            print()
+            for i ,(branch, hit) in enumerate(branch_coverage):
+                print(f"{branch} was {'hit' if hit else 'not hit'}")
+                i+=1
+            print(f"Branch Coverage: {coverage_percentage:}%")
         return node
 
     def _update_if_child(self, root: ast.If, node: ast.If) -> None:
@@ -232,7 +249,6 @@ class ReturnLikeStatementTupleVisitor(BaseNodeVisitor):
                         baseline=constants.MAX_LEN_TUPLE_OUTPUT,
                     ),
                 )
-
 
 @final
 class TupleUnpackVisitor(BaseNodeVisitor):

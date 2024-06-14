@@ -260,10 +260,28 @@ class TupleUnpackVisitor(BaseNodeVisitor):
         self.generic_visit(node)
 
     def _check_tuple_unpack(self, node: ast.Assign) -> None:
+        branch_coverage = [("branch3", False),("branch4", False)]
+
         if not isinstance(node.targets[0], ast.Tuple):
+            branch_coverage[0] = ("branch3", True)
+            covered_branches = sum(hit for _, hit in branch_coverage)
+            coverage_percentage = (covered_branches /2) * 100
+            print()
+            for i ,(branch, hit) in enumerate(branch_coverage):
+                print(f"{branch} was {'hit' if hit else 'not hit'}")
+                i+=1
+            print(f"Branch Coverage: {coverage_percentage:}%")
             return
 
         if len(node.targets[0].elts) <= self.options.max_tuple_unpack_length:
+            branch_coverage[1] = ("branch4", True)
+            covered_branches = sum(hit for _, hit in branch_coverage)
+            coverage_percentage = (covered_branches /2) * 100
+            print()
+            for i,(branch, hit) in enumerate(branch_coverage):
+                print(f"{branch} was {'hit' if hit else 'not hit'}")
+                i+=1
+            print(f"Branch Coverage: {coverage_percentage:}%")
             return
 
         self.add_violation(

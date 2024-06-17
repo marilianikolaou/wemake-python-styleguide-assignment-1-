@@ -66,7 +66,6 @@ class IfElseVisitor(BaseTokenVisitor):
             self._print_branch_coverage(branch_coverage)
             return
 
-
         # There's a bug in coverage, I am not sure how to make it work.
         next_tokens = self.file_tokens[token_index + 1:]
         for index, next_token in enumerate(next_tokens):  # pragma: no cover

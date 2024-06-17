@@ -55,37 +55,57 @@ class IfElseVisitor(BaseTokenVisitor):
         self._check_implicit_elif(token)
 
     def _check_implicit_elif(self, token: tokenize.TokenInfo) -> None:
+        branch_coverage = [
+            ("branch1", False), ("branch2", False), ("branch3", False), ("branch4", False)
+        ]
+
         token_index = self.file_tokens.index(token)
 
         if self._is_invalid_token(token_index, token):
+            branch_coverage[0] = ("branch1", True)
+            self._print_branch_coverage(branch_coverage)
             return
 
         # There's a bug in coverage, I am not sure how to make it work.
         next_tokens = self.file_tokens[token_index + 1:]
         for index, next_token in enumerate(next_tokens):  # pragma: no cover
+            branch_coverage[1] = ("branch2", True)
             if next_token.exact_type in self._allowed_token_types:
+                branch_coverage[2] = ("branch3", True)
                 continue
             elif next_token.string == 'if':
+                branch_coverage[3] = ("branch4", True)
                 self._check_complex_else(next_tokens, next_token, index)
+            self._print_branch_coverage(branch_coverage)
             return
 
     def _does_else_belong_to_if(self, start_index: int) -> bool:
+        branch_coverage = [
+            ("branch1", False), ("branch2", False), ("branch3", False), ("branch4", False)
+        ]
+
         previous_token = self.file_tokens[start_index - 1]
 
         if previous_token.type != tokenize.DEDENT:
             # This is not the first token on the line, which means that it can
             # also be "embedded" else: x if A else B
+            branch_coverage[0] = ("branch1", True)
+            self._print_branch_coverage(branch_coverage)
             return False
 
         for token in reversed(self.file_tokens[:start_index - 1]):
+            branch_coverage[1] = ("branch2", True)
             if token.type != tokenize.NAME:
+                branch_coverage[2] = ("branch3", True)
                 continue
 
             # Here we rely upon an intuition that in Python else have to be
             # on the same level (same indentation) as parent statement.
             if token.start[1] == previous_token.start[1]:
+                branch_coverage[3] = ("branch4", True)
+                self._print_branch_coverage(branch_coverage)
                 return token.string in {'if', 'elif'}
-
+        self._print_branch_coverage(branch_coverage)
         return False
 
     def _if_has_code_below(
@@ -133,3 +153,11 @@ class IfElseVisitor(BaseTokenVisitor):
         # which can trigger false positive for that violation.
         belongs_to_if = self._does_else_belong_to_if(index)
         return is_not_else or not belongs_to_if
+
+    def _print_branch_coverage(self, branch_coverage):
+        print()
+        covered_branches = sum(hit for _, hit in branch_coverage)
+        coverage_percentage = (covered_branches / len(branch_coverage)) * 100
+        for branch, hit in branch_coverage:
+            print(f"{branch} was {'hit' if hit else 'not hit'}")
+        print(f"Branch Coverage: {coverage_percentage:.2f}%")

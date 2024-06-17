@@ -13,7 +13,6 @@ from wemake_python_styleguide.visitors import base
 
 @final
 class IterableUnpackingVisitor(base.BaseNodeVisitor):
-    """Checks iterables unpacking."""
 
     _unpackable_iterable_parent_types: ClassVar[AnyNodes] = (
         ast.List,

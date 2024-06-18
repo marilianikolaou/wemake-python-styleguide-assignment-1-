@@ -61,4 +61,3 @@ def test_correct_compare_operators(
     visitor = CompareSanityVisitor(default_options, tree=tree)
     visitor.run()
 
-    # assert_errors(visitor, [])

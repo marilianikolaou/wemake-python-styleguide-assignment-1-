@@ -179,6 +179,7 @@ class StatementsWithBodiesVisitor(BaseNodeVisitor):
     def _almost_swapped(self, assigns: Sequence[ast.Assign]) -> None:
         previous_var: Set[Optional[str]] = set()
 
+
         coverage_data = {
             "branch_1" : False,
             "branch_2" : False,

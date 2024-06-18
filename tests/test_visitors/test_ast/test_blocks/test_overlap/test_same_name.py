@@ -111,3 +111,5 @@ def test_reuse_overlap(
     visitor.run()
 
     assert_errors(visitor, [BlockAndLocalOverlapViolation])
+
+

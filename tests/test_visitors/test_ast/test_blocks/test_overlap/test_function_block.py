@@ -1,5 +1,5 @@
 import pytest
-
+from unittest.mock import patch
 from wemake_python_styleguide.violations.best_practices import (
     BlockAndLocalOverlapViolation,
 )

@@ -54,11 +54,13 @@ def set_if_chain(tree: ast.AST) -> ast.AST:
     Since they are very similar it very hard to make a different when
     actually working with nodes. So, we need a simple way to separate them.
     """
+
+
+
     for statement in ast.walk(tree):
         if isinstance(statement, ast.If):
             _apply_if_statement(statement)
     return tree
-
 
 def set_node_context(tree: ast.AST) -> ast.AST:
     """
@@ -108,13 +110,14 @@ def set_constant_evaluations(tree: ast.AST) -> ast.AST:
     array, but since there is an addition, the linter does not know that and
     does not raise an error.
     """
+
     for stmt in ast.walk(tree):
         parent = get_parent(stmt)
         if isinstance(stmt, ast.BinOp) and not isinstance(parent, ast.BinOp):
             evaluation = evaluate_operation(stmt)
             setattr(stmt, 'wps_op_eval', evaluation)  # noqa: B010
-    return tree
 
+    return tree
 
 def _find_context(
     node: ast.AST,
@@ -136,6 +139,7 @@ def _find_context(
 
 def _apply_if_statement(statement: ast.If) -> None:
     """We need to add extra properties to ``if`` conditions."""
+
     for child in ast.iter_child_nodes(statement):
         if isinstance(child, ast.If):
             if child in statement.orelse:

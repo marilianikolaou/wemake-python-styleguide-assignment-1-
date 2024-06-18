@@ -64,7 +64,6 @@ def test_wrong_swapped_variables(
     visitor = StatementsWithBodiesVisitor(default_options, tree=tree)
     visitor.run()
 
-    # assert_errors(visitor, [AlmostSwappedViolation])
 
 
 @pytest.mark.parametrize('code', [

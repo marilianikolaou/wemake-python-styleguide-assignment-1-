@@ -87,15 +87,27 @@ class ConditionsVisitor(BaseNodeVisitor):
         self.generic_visit(node)
 
     def _count_conditions(self, node: ast.BoolOp) -> int:
+        branch_coverage = [("function1_branch1", False),("function1_branch2", False),("function1_branch3", False)]
         counter = 0
         for condition in node.values:
+            branch_coverage[0] = ("function1_branch1", True)
             if isinstance(condition, ast.BoolOp):
+                branch_coverage[1] = ("function1_branch2", True)
                 counter += self._count_conditions(condition)
             else:
+                branch_coverage[2] = ("function1_branch3", True)
                 counter += 1
+        covered_branches = sum(hit for _, hit in branch_coverage)
+        coverage_percentage = (covered_branches /3) * 100
+        print()
+        for i ,(branch, hit) in enumerate(branch_coverage):
+            print(f"{branch} was {'hit' if hit else 'not hit'}")
+            i+=1
+        print(f"Branch Coverage: {coverage_percentage:}%")
         return counter
 
     def _check_conditions(self, node: ast.BoolOp) -> None:
+
         conditions_count = self._count_conditions(node)
         if conditions_count > constants.MAX_CONDITIONS:
             self.add_violation(
@@ -107,15 +119,18 @@ class ConditionsVisitor(BaseNodeVisitor):
             )
 
     def _check_compares(self, node: ast.Compare) -> None:
+        branch_coverage = [("function2_branch1", False),("function2_branch2", False),("function2_branch3", False),("function2_branch4", False),("function2_branch5", False),("function2_branch6", False),("function2_branch7", False),("function2_branch8", False),("function2_branch9", False)]
         is_all_equals = all(isinstance(op, ast.Eq) for op in node.ops)
         is_all_notequals = all(isinstance(op, ast.NotEq) for op in node.ops)
         can_be_longer = is_all_notequals or is_all_equals
 
+        can_be_longer = is_all_notequals or is_all_equals
         threshold = constants.MAX_COMPARES
         if can_be_longer:
             threshold += 1
 
         if len(node.ops) > threshold:
+            branch_coverage[7] = ("function2_branch8", True)
             self.add_violation(
                 complexity.TooLongCompareViolation(
                     node,
@@ -123,6 +138,7 @@ class ConditionsVisitor(BaseNodeVisitor):
                     baseline=threshold,
                 ),
             )
+
 
 
 @final
@@ -142,26 +158,9 @@ class ElifVisitor(BaseNodeVisitor):
         self.generic_visit(node)
 
     def _get_root_if_node(self, node: ast.If) -> ast.If:
-        branch_coverage = [("function1_branch1", False),("function1_branch2", False)]
         for root, children in self._if_children.items():
-            branch_coverage[0] = ("function1_branch1", True)
             if node in children:
-                branch_coverage[1] = ("function1_branch2", True)
-                covered_branches = sum(hit for _, hit in branch_coverage)
-                coverage_percentage = (covered_branches /2) * 100
-                print()
-                for i,(branch, hit) in enumerate(branch_coverage):
-                    print(f"{branch} was {'hit' if hit else 'not hit'}")
-                    i+=1
-                print(f"Branch Coverage: {coverage_percentage:}%")
                 return root
-            covered_branches = sum(hit for _, hit in branch_coverage)
-            coverage_percentage = (covered_branches /2) * 100
-            print()
-            for i ,(branch, hit) in enumerate(branch_coverage):
-                print(f"{branch} was {'hit' if hit else 'not hit'}")
-                i+=1
-            print(f"Branch Coverage: {coverage_percentage:}%")
         return node
 
     def _update_if_child(self, root: ast.If, node: ast.If) -> None:
@@ -260,28 +259,10 @@ class TupleUnpackVisitor(BaseNodeVisitor):
         self.generic_visit(node)
 
     def _check_tuple_unpack(self, node: ast.Assign) -> None:
-        branch_coverage = [("branch3", False),("branch4", False)]
-
         if not isinstance(node.targets[0], ast.Tuple):
-            branch_coverage[0] = ("branch3", True)
-            covered_branches = sum(hit for _, hit in branch_coverage)
-            coverage_percentage = (covered_branches /2) * 100
-            print()
-            for i ,(branch, hit) in enumerate(branch_coverage):
-                print(f"{branch} was {'hit' if hit else 'not hit'}")
-                i+=1
-            print(f"Branch Coverage: {coverage_percentage:}%")
             return
 
         if len(node.targets[0].elts) <= self.options.max_tuple_unpack_length:
-            branch_coverage[1] = ("branch4", True)
-            covered_branches = sum(hit for _, hit in branch_coverage)
-            coverage_percentage = (covered_branches /2) * 100
-            print()
-            for i,(branch, hit) in enumerate(branch_coverage):
-                print(f"{branch} was {'hit' if hit else 'not hit'}")
-                i+=1
-            print(f"Branch Coverage: {coverage_percentage:}%")
             return
 
         self.add_violation(

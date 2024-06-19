@@ -51,18 +51,34 @@ def _process_child_nodes(
     complexity_calculator: Callable[[ast.AST, int], int],
 ) -> int:
     child_complexity = 0
+    branch_coverage = [("function1_branch1", False),("function1_branch2", False),("function1_branch3", False),("function1_branch4", False),("function1_branch5", False)]
 
     for node_num, child_node in enumerate(ast.iter_child_nodes(node)):
+        branch_coverage[0] = ("function1_branch1", True)
         if isinstance(node, ast.Try):
             if node_num == 1:
+                branch_coverage[1] = ("function1_branch2", True)
                 increment_by += 1  # add +1 for all try nodes except body
+            else:
+                branch_coverage[2] = ("function1_branch3", True)
+
             if node_num:
                 child_complexity += max(1, increment_by)
+                branch_coverage[3] = ("function1_branch4", True)
+            else :
+                branch_coverage[4] = ("function1_branch5", True)
+
         child_complexity += complexity_calculator(
             child_node,
             increment_by,
         )
-
+    covered_branches = sum(hit for _, hit in branch_coverage)
+    coverage_percentage = (covered_branches /5) * 100
+    print()
+    for i ,(branch, hit) in enumerate(branch_coverage):
+        print(f"{branch} was {'hit' if hit else 'not hit'}")
+        i+=1
+    print(f"Branch Coverage: {coverage_percentage:}%")
     return child_complexity
 
 

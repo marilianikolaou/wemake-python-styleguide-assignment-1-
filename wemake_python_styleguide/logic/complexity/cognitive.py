@@ -50,8 +50,8 @@ def _process_child_nodes(
     increment_by: int,
     complexity_calculator: Callable[[ast.AST, int], int],
 ) -> int:
-    child_complexity = 0
     branch_coverage = [("function1_branch1", False),("function1_branch2", False),("function1_branch3", False),("function1_branch4", False),("function1_branch5", False)]
+    child_complexity = 0
 
     for node_num, child_node in enumerate(ast.iter_child_nodes(node)):
         branch_coverage[0] = ("function1_branch1", True)

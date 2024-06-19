@@ -23,6 +23,7 @@ def wrapper():
     'a + b',
     '[a for a in some()]',
     '{a for a in some()}',
+
 ])
 def test_yield_from_incorrect_type(
     assert_errors,
@@ -47,6 +48,7 @@ def test_yield_from_incorrect_type(
     '(a for a in some())',
     '(1,)',
     '(1, 2, 3)',
+
 ])
 def test_yield_from_correct_type(
     assert_errors,
@@ -54,6 +56,7 @@ def test_yield_from_correct_type(
     code,
     default_options,
 ):
+
     """Ensure that `yield from` works with correct types."""
     tree = parse_ast_tree(yield_from_template.format(code))
 

@@ -21,14 +21,8 @@ from wemake_python_styleguide.violations import best_practices as bp
 from wemake_python_styleguide.violations import consistency, oop
 from wemake_python_styleguide.visitors import base, decorators
 
-
 @final
 class WrongClassDefVisitor(base.BaseNodeVisitor):
-    """
-    This class is responsible for restricting some ``class`` def anti-patterns.
-
-    Here we check for stylistic issues and design patterns.
-    """
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         """Checking class definitions."""
@@ -107,7 +101,6 @@ class WrongClassDefVisitor(base.BaseNodeVisitor):
                     bp.KwargsUnpackingInClassDefinitionViolation(node),
                 )
 
-
 @final
 class WrongClassBodyVisitor(base.BaseNodeVisitor):
     """
@@ -129,12 +122,14 @@ class WrongClassBodyVisitor(base.BaseNodeVisitor):
         self.generic_visit(node)
 
     def _check_wrong_body_nodes(self, node: ast.ClassDef) -> None:
+
         for sub_node in node.body:
             if isinstance(sub_node, self._allowed_body_nodes):
                 continue
             if strings.is_doc_string(sub_node):
                 continue
             self.add_violation(oop.WrongClassBodyContentViolation(sub_node))
+
 
     def _check_getters_setters_methods(self, node: ast.ClassDef) -> None:
         getters_and_setters = set(filter(
@@ -153,7 +148,6 @@ class WrongClassBodyVisitor(base.BaseNodeVisitor):
                 ),
             )
 
-
 @final
 @decorators.alias('visit_any_function', (
     'visit_FunctionDef',
@@ -170,7 +164,6 @@ class WrongMethodVisitor(base.BaseNodeVisitor):
     ))
 
     def visit_any_function(self, node: types.AnyFunctionDef) -> None:
-        """Checking class methods: async and regular."""
         node_context = nodes.get_context(node)
         if isinstance(node_context, ast.ClassDef):
             self._check_decorators(node)

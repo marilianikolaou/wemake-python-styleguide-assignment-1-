@@ -65,6 +65,7 @@ class CompareSanityVisitor(BaseNodeVisitor):
         return True
 
     def _check_literal_compare(self, node: ast.Compare) -> None:
+
         last_was_literal = nodes.is_literal(get_assigned_expr(node.left))
         for comparator in map(get_assigned_expr, node.comparators):
             next_is_literal = nodes.is_literal(comparator)
@@ -95,17 +96,41 @@ class CompareSanityVisitor(BaseNodeVisitor):
                 if not self._is_correct_len(node.ops[ps], node.comparators[ps]):
                     self.add_violation(UselessLenCompareViolation(node))
 
+
+
     def _check_heterogeneous_operators(self, node: ast.Compare) -> None:
+
+        coverage_data = {
+            "branch_1" : False,
+            "branch_2" : False,
+            "branch_3" : False,
+            "branch_4" : False,
+            "branch_5" : False,
+        }
         if len(node.ops) == 1:
+            coverage_data["branch_1"] = True
             return
+        else:
+            coverage_data["branch_2"] = True
 
         prototype = compares.get_similar_operators(node.ops[0])
 
         for op in node.ops:
+            coverage_data["branch_3"] = True
             if not isinstance(op, prototype):
+                coverage_data["branch_4"] = True
                 self.add_violation(HeterogeneousCompareViolation(node))
                 break
+            else:
+                coverage_data["branch_5"] = True
 
+        total_branches = len(coverage_data)
+        hit_branches = sum(coverage_data.values())
+        coverage_percentage = (hit_branches / total_branches) * 100
+        print()
+        print(f"Branch coverage in _check_heterogeneous_operators: {coverage_percentage:.2f}%")
+        for branch, hit in coverage_data.items():
+            print(f"'{branch}' was {'hit' if hit else 'not hit'}")
     def _check_reversed_complex_compare(self, node: ast.Compare) -> None:
         if len(node.ops) != 2:
             return

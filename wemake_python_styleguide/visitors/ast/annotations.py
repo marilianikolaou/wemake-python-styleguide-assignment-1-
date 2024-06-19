@@ -29,6 +29,7 @@ class WrongAnnotationVisitor(BaseNodeVisitor):
         self.generic_visit(node)
 
     def _check_return_annotation(self, node: AnyFunctionDef) -> None:
+
         if not node.returns:
             return
 
@@ -39,6 +40,7 @@ class WrongAnnotationVisitor(BaseNodeVisitor):
                 return
 
     def _check_arg_annotation(self, node: ast.arg) -> None:
+
         for sub_node in ast.walk(node):
             lineno = getattr(sub_node, 'lineno', None)
             if lineno and lineno != node.lineno:

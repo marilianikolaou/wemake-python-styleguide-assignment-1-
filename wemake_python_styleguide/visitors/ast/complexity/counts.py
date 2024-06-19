@@ -87,15 +87,15 @@ class ConditionsVisitor(BaseNodeVisitor):
         self.generic_visit(node)
 
     def _count_conditions(self, node: ast.BoolOp) -> int:
-        branch_coverage = [("function1_branch1", False),("function1_branch2", False),("function1_branch3", False)]
+        branch_coverage = [("function2_branch1", False),("function2_branch2", False),("function2_branch3", False)]
         counter = 0
         for condition in node.values:
-            branch_coverage[0] = ("function1_branch1", True)
+            branch_coverage[0] = ("function2_branch1", True)
             if isinstance(condition, ast.BoolOp):
-                branch_coverage[1] = ("function1_branch2", True)
+                branch_coverage[1] = ("function2_branch2", True)
                 counter += self._count_conditions(condition)
             else:
-                branch_coverage[2] = ("function1_branch3", True)
+                branch_coverage[2] = ("function2_branch3", True)
                 counter += 1
         covered_branches = sum(hit for _, hit in branch_coverage)
         coverage_percentage = (covered_branches /3) * 100

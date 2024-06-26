@@ -75,3 +75,17 @@ def test_valid_decorators(
     visitor.run()
 
     assert_errors(visitor, [])
+
+def test_multiple_decorators(assert_errors, parse_ast_tree, default_options, mode):
+    """Test function with multiple decorators."""
+    code = """
+    @simple
+    @complex[0]
+    def some(): ...
+    """
+    tree = parse_ast_tree(mode(code))
+
+    visitor = WrongDecoratorVisitor(default_options, tree=tree)
+    visitor.run()
+
+    assert_errors(visitor, [NewStyledDecoratorViolation])

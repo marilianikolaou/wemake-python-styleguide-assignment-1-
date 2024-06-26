@@ -122,12 +122,14 @@ class WrongClassBodyVisitor(base.BaseNodeVisitor):
         self.generic_visit(node)
 
     def _check_wrong_body_nodes(self, node: ast.ClassDef) -> None:
+
         for sub_node in node.body:
             if isinstance(sub_node, self._allowed_body_nodes):
                 continue
             if strings.is_doc_string(sub_node):
                 continue
             self.add_violation(oop.WrongClassBodyContentViolation(sub_node))
+
 
     def _check_getters_setters_methods(self, node: ast.ClassDef) -> None:
         getters_and_setters = set(filter(

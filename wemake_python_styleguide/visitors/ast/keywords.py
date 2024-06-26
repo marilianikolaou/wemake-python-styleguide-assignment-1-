@@ -141,6 +141,7 @@ class ConsistentReturningVisitor(BaseNodeVisitor):
         return_nodes, has_values = keywords.returning_nodes(
             node, returning_type,
         )
+
         is_all_none = (
             has_values and
             all(
@@ -149,6 +150,7 @@ class ConsistentReturningVisitor(BaseNodeVisitor):
                     ret_node.value.value is None
                 )
                 for ret_node in return_nodes
+
             )
         )
         if is_all_none:
@@ -264,9 +266,11 @@ class GeneratorKeywordsVisitor(BaseNodeVisitor):
         self.generic_visit(node)
 
     def _check_consecutive_yields(self, node: AnyFunctionDef) -> None:
+
         for sub in ast.walk(node):
             if isinstance(sub, ast.Expr) and isinstance(sub.value, ast.Yield):
                 self._yield_locations[sub.value.lineno] = sub
+
 
     def _check_yield_from_type(self, node: ast.YieldFrom) -> None:
         if not isinstance(node.value, self._allowed_nodes):
@@ -277,9 +281,13 @@ class GeneratorKeywordsVisitor(BaseNodeVisitor):
             if not node.value.elts:
                 self.add_violation(IncorrectYieldFromTargetViolation(node))
 
+
+
+
     def _post_visit(self) -> None:
         previous_line: Optional[int] = None
         previous_parent: Optional[ast.AST] = None
+
 
         for line, node in self._yield_locations.items():
             parent = get_parent(node)
@@ -288,6 +296,7 @@ class GeneratorKeywordsVisitor(BaseNodeVisitor):
                 if line - 1 == previous_line and previous_parent == parent:
                     self.add_violation(ConsecutiveYieldsViolation(node.value))
                     break
+
 
             previous_line = line
             previous_parent = parent
@@ -333,6 +342,7 @@ class ConsistentReturningVariableVisitor(BaseNodeVisitor):
         We also use ``cast`` for a reason.
         Because ``return`` always has a parent.
         """
+
         parent = cast(ast.AST, get_parent(node))
         for part in ('body', 'orelse', 'finalbody'):
             block: List[ast.stmt] = getattr(parent, part, [])
@@ -344,6 +354,7 @@ class ConsistentReturningVariableVisitor(BaseNodeVisitor):
             if current_index > 0:
                 return block[current_index - 1]
         return None
+
 
     def _check_for_violations(
         self,

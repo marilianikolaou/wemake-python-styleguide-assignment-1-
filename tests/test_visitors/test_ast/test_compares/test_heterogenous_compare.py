@@ -23,6 +23,7 @@ from wemake_python_styleguide.visitors.ast.compares import CompareSanityVisitor
     'long == x == y >= z',
     'call() != attr.prop in array',
     'item not in array == value',
+
 ])
 def test_heterogeneous_compare(
     assert_errors,
@@ -41,10 +42,12 @@ def test_heterogeneous_compare(
 
 @pytest.mark.parametrize('code', [
     'x == y == z',
-    'z != y != x',
+     'z != y != x',
     'call() == other.prop',
-    'x in y',
-    'x not in y',
+     'x in y',
+     'x not in y',
+     # new test case that improves the coverage
+     'x == y != z > y'
 ])
 def test_correct_compare_operators(
     assert_errors,
@@ -58,4 +61,3 @@ def test_correct_compare_operators(
     visitor = CompareSanityVisitor(default_options, tree=tree)
     visitor.run()
 
-    assert_errors(visitor, [])

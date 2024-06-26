@@ -179,22 +179,54 @@ class StatementsWithBodiesVisitor(BaseNodeVisitor):
     def _almost_swapped(self, assigns: Sequence[ast.Assign]) -> None:
         previous_var: Set[Optional[str]] = set()
 
+
+        coverage_data = {
+            "branch_1" : False,
+            "branch_2" : False,
+            "branch_3" : False,
+            "branch_4" : False,
+            "branch_5" : False,
+            "branch_6" : False,
+            "branch_7" : False,
+        }
+
         for assign in assigns:
+            coverage_data["branch_1"] = True
             current_var = {
                 first(name_nodes.flat_variable_names([assign])),
                 first(name_nodes.get_variables_from_node(assign.value)),
             }
 
             if not all(map(bool, current_var)):
+                coverage_data["branch_2"] = True
                 previous_var.clear()
                 continue
 
+            else:
+                coverage_data["branch_3"] = True
+
             if current_var == previous_var:
+                coverage_data["branch_4"] = True
                 self.add_violation(AlmostSwappedViolation(assign))
 
+            else:
+                coverage_data["branch_5"] = True
+
             if len(previous_var & current_var) == 1:
+                coverage_data["branch_6"] = True
                 current_var ^= previous_var
+
+            else:
+                coverage_data["branch_7"] = True
             previous_var = current_var
+
+        total_branches = len(coverage_data)
+        hit_branches = sum(coverage_data.values())
+        coverage_percentage = (hit_branches / total_branches) * 100
+        print()
+        print(f"Branch coverage in _almost_swapped: {coverage_percentage:.2f}%")
+        for branch, hit in coverage_data.items():
+            print(f"'{branch}' was {'hit' if hit else 'not hit'}")
 
     def _check_useless_node(
         self,

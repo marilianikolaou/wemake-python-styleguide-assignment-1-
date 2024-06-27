@@ -55,6 +55,7 @@ class CompareSanityVisitor(BaseNodeVisitor):
         self.generic_visit(node)
 
     def _is_correct_len(self, sign: ast.cmpop, comparator: ast.AST) -> bool:
+
         """Helper function which tells what calls to ``len()`` are valid."""
         if isinstance(operators.unwrap_unary_node(comparator), ast.Num):
             numeric_value = ast.literal_eval(comparator)
@@ -265,17 +266,58 @@ class WrongComparisonOrderVisitor(BaseNodeVisitor):
         return False
 
     def _check_ordering(self, node: ast.Compare) -> None:
+        branch_coverage = [("function2_branch1", False),("function2_branch2", False),("function2_branch3", False),("function2_branch4", False),("function2_branch5", False),("function2_branch6", False),("function2_branch7", False),("function2_branch8", False)]
         if self._is_left_node_valid(get_assigned_expr(node.left)):
+            branch_coverage[0] = ("function2_branch1", True)
+            covered_branches = sum(hit for _, hit in branch_coverage)
+            coverage_percentage = (covered_branches /8) * 100
+            print()
+            for i ,(branch, hit) in enumerate(branch_coverage):
+                print(f"{branch} was {'hit' if hit else 'not hit'}")
+                i+=1
+            print(f"Branch Coverage: {coverage_percentage:}%")
             return
+        else:
+            branch_coverage[1] = ("function2_branch2", True)
 
         if self._is_special_case(node):
+            branch_coverage[2] = ("function2_branch3", True)
+            covered_branches = sum(hit for _, hit in branch_coverage)
+            coverage_percentage = (covered_branches /8) * 100
+            print()
+            for i ,(branch, hit) in enumerate(branch_coverage):
+                print(f"{branch} was {'hit' if hit else 'not hit'}")
+                i+=1
+            print(f"Branch Coverage: {coverage_percentage:}%")
             return
+        else:
+            branch_coverage[3] = ("function2_branch4", True)
 
         if len(node.comparators) > 1:
+            branch_coverage[4] = ("function2_branch5", True)
+            covered_branches = sum(hit for _, hit in branch_coverage)
+            coverage_percentage = (covered_branches /8) * 100
+            print()
+            for i ,(branch, hit) in enumerate(branch_coverage):
+                print(f"{branch} was {'hit' if hit else 'not hit'}")
+                i+=1
+            print(f"Branch Coverage: {coverage_percentage:}%")
             return
+        else:
+            branch_coverage[5] = ("function2_branch6", True)
 
         if not self._has_wrong_nodes_on_the_right(node.comparators):
+            branch_coverage[6] = ("function2_branch7", True)
+            covered_branches = sum(hit for _, hit in branch_coverage)
+            coverage_percentage = (covered_branches /8) * 100
+            print()
+            for i ,(branch, hit) in enumerate(branch_coverage):
+                print(f"{branch} was {'hit' if hit else 'not hit'}")
+                i+=1
+            print(f"Branch Coverage: {coverage_percentage:}%")
             return
+        else:
+            branch_coverage[7] = ("function2_branch8", True)
 
         self.add_violation(CompareOrderViolation(node))
 

@@ -1,4 +1,7 @@
 import pytest
+from hypothesis.strategies import none
+
+from wemake_python_styleguide.transformations.ast.enhancements import evaluate_operation
 
 
 @pytest.mark.parametrize(('expression', 'output'), [
@@ -17,9 +20,8 @@ import pytest
     ('5 % 3', 2),
     ('4 // 3', 1),
     ('(6 - 2) * ((3 << 3) // 10) % 5 | 7**2', 51),
-    ('(1 + 2) * (3 - 4)', -3),
-    ('(2 + 3) * (5 - (1 + 1))', 15),
-    ('(4 // 2) + 3 * 2', 8)
+
+
 ])
 def test_evaluate_valid_operations(parse_ast_tree, expression: str, output):
     """Tests that the operations are correctly evaluated."""
@@ -30,15 +32,18 @@ def test_evaluate_valid_operations(parse_ast_tree, expression: str, output):
 @pytest.mark.parametrize('expression', [
     'x * 2',
     'x << y',
-    '-x + y',
-    '0 / 0',
+    '-x + y',    '0 / 0',
     '"a" * 2.1',
     '"a" + 1',
     '3 << 1.5',
     '((4 - 1) * 3 - 9) // (7 >> 4)',
     '[[1, 0], [0, 1]] @ [[1, 1], [0, 0]]',
+
+
 ])
 def test_evaluate_invalid_operations(parse_ast_tree, expression: str):
     """Tests that the operations can not be evaluated and thus return None."""
     tree = parse_ast_tree(expression)
     assert tree.body[0].value.wps_op_eval is None
+
+

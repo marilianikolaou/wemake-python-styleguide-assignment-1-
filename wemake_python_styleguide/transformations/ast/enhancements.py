@@ -151,19 +151,14 @@ def evaluate_operation(
     statement: ast.BinOp,
 ) -> Optional[Union[int, float, str, bytes]]:
     """Tries to evaluate all math operations inside the statement."""
-    branch_coverage = [("function2_branch1", False),("function2_branch2", False),("function2_branch3", False),("function2_branch4", False),("function2_branch5", False),("function2_branch6", False)]
     if isinstance(statement.left, ast.BinOp):
-        branch_coverage[0] = ("function2_branch1", True)
         left = evaluate_operation(statement.left)
     else:
-        branch_coverage[1] = ("function2_branch2", True)
         left = evaluate_node(statement.left)
 
     if isinstance(statement.right, ast.BinOp):
-        branch_coverage[2] = ("function2_branch3", True)
         right = evaluate_operation(statement.right)
     else:
-        branch_coverage[3] = ("function2_branch4", True)
         right = evaluate_node(statement.right)
 
     op = _AST_OPS_TO_OPERATORS.get(type(statement.op))
@@ -172,15 +167,5 @@ def evaluate_operation(
     if op is not None:
         with suppress(Exception):
             evaluation = op(left, right)
-        branch_coverage[4] = ("function2_branch5", True)
-    else:
-        branch_coverage[5] = ("function2_branch6", True)
 
-    covered_branches = sum(hit for _, hit in branch_coverage)
-    coverage_percentage = (covered_branches /5) * 100
-    print()
-    for i ,(branch, hit) in enumerate(branch_coverage):
-        print(f"{branch} was {'hit' if hit else 'not hit'}")
-        i+=1
-    print(f"Branch Coverage: {coverage_percentage:}%")
     return evaluation

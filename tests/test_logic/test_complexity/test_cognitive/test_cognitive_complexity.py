@@ -143,6 +143,18 @@ def enhance(tree):
     return tree
 """
 
+complexity12_2 = """
+def enhance_with_Try():
+    try: # +1
+        for i in range(10): # +1
+            if i % 2 == 0: # +2
+                continue  # +2
+            if i == 6: # +2
+                break # +2
+    except Exception as e: # +1
+        if str(e): # +1
+            return 1
+"""
 
 @pytest.mark.parametrize(('code', 'complexity'), [
     (complexity1_1, 1),
@@ -165,6 +177,10 @@ def enhance(tree):
     (complexity9_1, 9),
     (complexity10_1, 10),
     (complexity14_1, 14),
+    (complexity12_2, 12)
+
+
+
 ])
 def test_cognitive_complexity(
     get_code_snippet_complexity,

@@ -40,16 +40,20 @@ class ModuleMembersVisitor(BaseNodeVisitor):
         self.generic_visit(node)
 
     def _check_members_count(self, node: _ModuleMembers) -> None:
+
         """This method increases the number of module members."""
+
         if functions.is_method(getattr(node, 'function_type', '')):
             return
+
 
         if isinstance(node, FunctionNodes):
             if decorators.has_overload_decorator(node):
                 return  # We don't count `@overload` defs as real defs
 
-        if isinstance(get_parent(node), ast.Module):
-            self._public_items_count += 1
+            if isinstance(get_parent(node), ast.Module):
+                self._public_items_count += 1
+
 
     def _check_decorators_count(self, node: _ModuleMembers) -> None:
         number_of_decorators = len(node.decorator_list)
@@ -87,23 +91,12 @@ class ConditionsVisitor(BaseNodeVisitor):
         self.generic_visit(node)
 
     def _count_conditions(self, node: ast.BoolOp) -> int:
-        branch_coverage = [("function2_branch1", False),("function2_branch2", False),("function2_branch3", False)]
         counter = 0
         for condition in node.values:
-            branch_coverage[0] = ("function2_branch1", True)
             if isinstance(condition, ast.BoolOp):
-                branch_coverage[1] = ("function2_branch2", True)
                 counter += self._count_conditions(condition)
             else:
-                branch_coverage[2] = ("function2_branch3", True)
                 counter += 1
-        covered_branches = sum(hit for _, hit in branch_coverage)
-        coverage_percentage = (covered_branches /3) * 100
-        print()
-        for i ,(branch, hit) in enumerate(branch_coverage):
-            print(f"{branch} was {'hit' if hit else 'not hit'}")
-            i+=1
-        print(f"Branch Coverage: {coverage_percentage:}%")
         return counter
 
     def _check_conditions(self, node: ast.BoolOp) -> None:
@@ -122,8 +115,6 @@ class ConditionsVisitor(BaseNodeVisitor):
         branch_coverage = [("function2_branch1", False),("function2_branch2", False),("function2_branch3", False),("function2_branch4", False),("function2_branch5", False),("function2_branch6", False),("function2_branch7", False),("function2_branch8", False),("function2_branch9", False)]
         is_all_equals = all(isinstance(op, ast.Eq) for op in node.ops)
         is_all_notequals = all(isinstance(op, ast.NotEq) for op in node.ops)
-        can_be_longer = is_all_notequals or is_all_equals
-
         can_be_longer = is_all_notequals or is_all_equals
         threshold = constants.MAX_COMPARES
         if can_be_longer:

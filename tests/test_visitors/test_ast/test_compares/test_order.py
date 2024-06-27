@@ -42,6 +42,10 @@ async def function():
     (1, 2),
     ('returned_item["id"]', 'office.id'),
     ('(x := first(1, 2))', '"str"'),
+    ('1 in [1, 2, 3]', True)
+
+
+
 ])
 def test_compare_variables(
     assert_errors,

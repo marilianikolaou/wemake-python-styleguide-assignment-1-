@@ -100,22 +100,46 @@ class WrongFunctionCallVisitor(base.BaseNodeVisitor):
             )
 
     def _check_boolean_arguments(self, node: ast.Call) -> None:
-        if len(node.args) == 1 and not node.keywords:
-            return  # Calls with single boolean argument are allowed
+        branch_coverage = [
+            ("branch1", False), ("branch2", False), ("branch3", False), ("branch4", False), ("branch5", False),
+            ("branch6", False), ("branch7", False)
+        ]
 
+        if len(node.args) == 1 and not node.keywords:
+            branch_coverage[0] = ("branch1", True)
+            self._print_branch_coverage(branch_coverage)
+            return  # Calls with single boolean argument are allowed
+        else:
+            branch_coverage[1] = ("branch2", True)
         for arg in node.args:
+            branch_coverage[2] = ("branch3", True)
             if not isinstance(arg, ast.NameConstant):
+                branch_coverage[3] = ("branch4", True)
                 continue
+            else:
+                branch_coverage[4] = ("branch5", True)
 
             is_ignored = self._is_call_ignored(node)
 
             # We do not check for `None` values here:
             if not is_ignored and arg.value in {True, False}:
+                branch_coverage[5] = ("branch6", True)
                 self.add_violation(
                     BooleanPositionalArgumentViolation(
                         arg, text=str(arg.value),
                     ),
                 )
+            else:
+                branch_coverage[6] = ("branch7", True)
+            self._print_branch_coverage(branch_coverage)
+
+    def _print_branch_coverage(self, branch_coverage):
+        print()
+        covered_branches = sum(hit for _, hit in branch_coverage)
+        coverage_percentage = (covered_branches / len(branch_coverage)) * 100
+        for branch, hit in branch_coverage:
+            print(f"{branch} was {'hit' if hit else 'not hit'}")
+        print(f"Branch Coverage: {coverage_percentage:.2f}%")
 
     def _check_isinstance_call(self, node: ast.Call) -> None:
         function_name = functions.given_function_called(node, {'isinstance'})

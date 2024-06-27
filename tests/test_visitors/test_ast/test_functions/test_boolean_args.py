@@ -168,6 +168,8 @@ def test_different_argument(
     True,
     False,
 ])
+
+
 def test_wrong_boolean_argument(
     assert_errors,
     parse_ast_tree,
@@ -184,5 +186,33 @@ def test_wrong_boolean_argument(
 
     assert_errors(visitor, [
         BooleanPositionalArgumentViolation,
+        BooleanPositionalArgumentViolation,
+    ])
+@pytest.mark.parametrize('template', [
+    'getattr([1, 2, 3], {})',
+])
+@pytest.mark.parametrize('function', [
+    'getattr',
+])
+@pytest.mark.parametrize('argument', [
+    True,
+])
+
+def test_single_case_all_branches(
+    assert_errors,
+    parse_ast_tree,
+    default_options,
+    template,
+    function,
+    argument,
+):
+    """Testing all branches with various combinations of templates, functions, and arguments."""
+
+    tree = parse_ast_tree(template.format(argument))
+
+    visitor = WrongFunctionCallVisitor(default_options, tree=tree)
+    visitor.run()
+
+    assert_errors(visitor, [
         BooleanPositionalArgumentViolation,
     ])

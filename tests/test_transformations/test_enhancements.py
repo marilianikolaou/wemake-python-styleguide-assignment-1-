@@ -17,6 +17,9 @@ import pytest
     ('5 % 3', 2),
     ('4 // 3', 1),
     ('(6 - 2) * ((3 << 3) // 10) % 5 | 7**2', 51),
+    ('(1 + 2) * (3 - 4)', -3),
+    ('(2 + 3) * (5 - (1 + 1))', 15),
+    ('(4 // 2) + 3 * 2', 8)
 ])
 def test_evaluate_valid_operations(parse_ast_tree, expression: str, output):
     """Tests that the operations are correctly evaluated."""
